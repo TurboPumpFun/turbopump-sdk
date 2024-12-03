@@ -20,12 +20,6 @@ export const FACTORY_ADDRESSES: Record<constants.StarknetChainId, string> = {
     "0x01a46467a9246f45c8c340f1f155266a26a71c07bd55d36e8d1c7d0d438a2dbc",
 };
 
-export const MULTICALL_ADDRESSES: Record<constants.StarknetChainId, string> = {
-  [constants.StarknetChainId.SN_SEPOLIA]: "",
-  [constants.StarknetChainId.SN_MAIN]:
-    "0x01a33330996310a1e3fa1df5b16c1e07f0491fdd20c441126e02613b948f0225",
-};
-
 export enum QUOTE_TOKEN_SYMBOL {
   ETH = "ETH",
   STRK = "STRK",
