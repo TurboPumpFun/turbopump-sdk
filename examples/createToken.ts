@@ -40,7 +40,7 @@ async function main() {
       startingMarketCap: "100000",
       quoteToken: {
         address:
-          "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49", // ETH,
+          "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49", // LORDS
         symbol: "LORDS",
         decimals: 18,
         name: "Realms: LORDS",
