@@ -1,4 +1,4 @@
-import type { LaunchParameters, EkuboLaunchData } from "./types";
+import type { LaunchParameters, EkuboLaunchData, USDCPair } from "./types";
 import {
   type CollectEkuboFeesParameters,
   type Config,
@@ -6,9 +6,10 @@ import {
   type DeployData,
   AMM,
 } from "./types";
-import type { Calldata } from "starknet";
+import type { BlockNumber, Calldata, ProviderInterface } from "starknet";
 import {
   type AllowArray,
+  BlockTag,
   type Call,
   CallData,
   hash,
@@ -60,16 +61,49 @@ export async function createUnruggableToken(
   }
 }
 
-function getEkuboLaunchCalldata(
+async function getPairPrice(
+  provider: ProviderInterface,
+  pair?: USDCPair,
+  blockNumber: BlockNumber = BlockTag.LATEST,
+) {
+  if (!pair) {
+    return new Fraction(1, 1);
+  }
+
+  const result = await provider.callContract(
+    {
+      contractAddress: pair.address,
+      entrypoint: "get_reserves",
+    },
+    blockNumber,
+  );
+
+  const [reserve0Low, reserve0High, reserve1Low, reserve1High] = result;
+
+  const pairPrice = new Fraction(
+    uint256.uint256ToBN({ low: reserve1Low, high: reserve1High }).toString(),
+    uint256.uint256ToBN({ low: reserve0Low, high: reserve0High }).toString(),
+  );
+
+  // token0 and token1 are switched on some pairs
+  return (pair.reversed ? pairPrice.invert() : pairPrice).multiply(
+    decimalsScale(12),
+  );
+}
+
+async function getEkuboLaunchCalldata(
   config: Config,
   data: EkuboLaunchData,
-): {
+): Promise<{
   calls: {
     contractAddress: string;
     entrypoint: string;
     calldata: Calldata;
   }[];
-} {
+}> {
+
+  
+
   // If there are no team allocations, we only need the launch call
   if (data.teamAllocations.length === 0) {
     const initialPrice = +new Fraction(data.startingMarketCap)
@@ -111,28 +145,30 @@ function getEkuboLaunchCalldata(
     };
   }
 
-  // Convert all team allocation amounts to Fractions
+  const quoteTokenPrice = await getPairPrice(
+    config.starknetProvider,
+    data.quoteToken.usdcPair,
+  );
+
+  // get the team allocation amount
   const teamAllocationFraction = data.teamAllocations.reduce(
-    (acc, { amount }) => acc.add(new Fraction(amount.toString(), 1)),
+    (acc, { amount }) => acc.add(amount),
     new Fraction(0),
   );
 
-  // Create fraction for total supply with decimals
-  const totalSupplyFraction = new Fraction(data.totalSupply);
-  const totalSupplyWithDecimals = totalSupplyFraction.multiply(
-    decimalsScale(DECIMALS),
-  );
+  const denominator = new Fraction(data.totalSupply, decimalsScale(DECIMALS))
+    .quotient;
 
   const teamAllocationPercentage = new Percent(
     teamAllocationFraction.quotient,
-    totalSupplyWithDecimals.quotient,
+    denominator,
   );
 
   const teamAllocationQuoteAmount = new Fraction(data.startingMarketCap)
-    .multiply(teamAllocationPercentage)
-    .multiply(data.fees.add(1));
+    .divide(quoteTokenPrice)
+    .multiply(teamAllocationPercentage.multiply(data.fees.add(1)));
 
-  const uint256TeamAllocationQuoteAmount = uint256.bnToUint256(
+  const uin256TeamAllocationQuoteAmount = uint256.bnToUint256(
     BigInt(
       teamAllocationQuoteAmount
         .multiply(decimalsScale(data.quoteToken.decimals))
@@ -140,12 +176,15 @@ function getEkuboLaunchCalldata(
     ),
   );
 
+  // get initial price based on mcap and quote token price
   const initialPrice = +new Fraction(data.startingMarketCap)
+    .divide(quoteTokenPrice)
     .multiply(decimalsScale(DECIMALS))
-    .divide(totalSupplyFraction)
+    .divide(new Fraction(data.totalSupply))
     .toFixed(DECIMALS);
 
   const startingTickMag = getStartingTick(initialPrice);
+
   const i129StartingTick = {
     mag: Math.abs(startingTickMag),
     sign: startingTickMag < 0,
@@ -154,8 +193,8 @@ function getEkuboLaunchCalldata(
   const fees = data.fees.multiply(EKUBO_FEES_MULTIPLICATOR).quotient.toString();
 
   const transferCalldata = CallData.compile([
-    FACTORY_ADDRESSES[config.starknetChainId],
-    uint256TeamAllocationQuoteAmount,
+    FACTORY_ADDRESSES[config.starknetChainId], // recipient
+    uin256TeamAllocationQuoteAmount, // amount
   ]);
 
   const initialHolders = data.teamAllocations.map(({ address }) => address);
@@ -202,7 +241,7 @@ export async function launchOnEkubo(
   config: Config,
   parameters: LaunchParameters,
 ): Promise<{ transactionHash: string }> {
-  const { calls } = getEkuboLaunchCalldata(config, {
+  const { calls } = await getEkuboLaunchCalldata(config, {
     amm: AMM.EKUBO,
     antiBotPeriod: parameters.antiBotPeriodInSecs * 60,
     fees: convertPercentageStringToPercent(parameters.fees),
