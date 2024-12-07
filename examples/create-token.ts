@@ -1,9 +1,21 @@
 import { Account, constants, RpcProvider } from "starknet";
-import { unruggable, type Config, type CreateMemecoinParameters } from "../src";
+import {
+  Config,
+  CreateMemecoinParameters,
+  createUnruggableToken,
+  launchOnEkubo,
+} from "../packages/core/src";
 
 const STARKNET_RPC = "https://starknet-mainnet.public.blastapi.io";
 const ACCOUNT_ADDRESS = process.env.ACCOUNT_ADDRESS ?? "";
-const PRIVATE_KEY = process.env.PRIVATE_KEY ?? "";
+const PRIVATE_KEY = process.env.ACCOUNT_PRIVATE_KEY ?? "";
+
+if (!ACCOUNT_ADDRESS || !PRIVATE_KEY) {
+  console.error(
+    "Please provide ACCOUNT_ADDRESS and ACCOUNT_PRIVATE_KEY environment variables\n"
+  );
+  process.exit(1);
+}
 
 async function main() {
   const provider = new RpcProvider({ nodeUrl: STARKNET_RPC });
@@ -15,7 +27,7 @@ async function main() {
   };
 
   const parameters: CreateMemecoinParameters = {
-    name: "GG",
+    name: "Turbopump",
     symbol: "GG",
     initialSupply: "1000000",
     owner: ACCOUNT_ADDRESS,
@@ -23,15 +35,19 @@ async function main() {
   };
 
   try {
-    const { tokenAddress, transactionHash } =
-      await unruggable.createUnruggableToken(config, parameters);
-    console.log("Token créé avec succès !");
-    console.log("Transaction Hash:", transactionHash);
-    console.log("Token Address:", tokenAddress);
+    const { tokenAddress, transactionHash } = await createUnruggableToken(
+      config,
+      parameters
+    );
+
+    console.log("Token created successfully!", {
+      tokenAddress,
+      transactionHash,
+    });
 
     await provider.waitForTransaction(transactionHash);
 
-    const launchResult = await unruggable.launchOnEkubo(config, {
+    const launchResult = await launchOnEkubo(config, {
       tokenAddress,
       starknetAccount: account,
       antiBotPeriodInSecs: 0,
@@ -52,7 +68,7 @@ async function main() {
 
     if (launchResult) {
       console.log(
-        `Launching on Ekubo... Transaction hash: ${launchResult.transactionHash}`,
+        `Launching on Ekubo... Transaction hash: ${launchResult.transactionHash}`
       );
     }
   } catch (error) {

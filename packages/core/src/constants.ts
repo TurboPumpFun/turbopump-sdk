@@ -1,5 +1,5 @@
-import { type BigNumberish, constants, getChecksumAddress } from "starknet";
-import type { MultichainToken, Token } from "./unruggable/types";
+import { constants, getChecksumAddress, type BigNumberish } from "starknet";
+import type { MultichainToken, Token } from "./unruggable/types.js";
 
 export const PERCENTAGE_INPUT_PRECISION = 2;
 

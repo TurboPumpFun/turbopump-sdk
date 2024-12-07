@@ -1,5 +1,5 @@
 import type { BigintIsh, Percent } from "@uniswap/sdk-core";
-import type { AccountInterface, ProviderInterface, constants } from "starknet";
+import type { AccountInterface, constants, ProviderInterface } from "starknet";
 
 export interface Config {
   starknetChainId: constants.StarknetChainId;

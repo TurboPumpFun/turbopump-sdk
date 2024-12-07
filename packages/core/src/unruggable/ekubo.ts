@@ -3,7 +3,7 @@ import {
   EKUBO_TICK_SIZE,
   EKUBO_TICK_SIZE_LOG,
   EKUBO_TICK_SPACING,
-} from "@/constants";
+} from "../constants.js";
 
 export function getInitialPrice(startingTick: number): number {
   return EKUBO_TICK_SIZE ** startingTick;
@@ -12,7 +12,7 @@ export function getInitialPrice(startingTick: number): number {
 export function getStartingTick(initialPrice: number): number {
   return (
     Math.floor(
-      Math.log(initialPrice) / EKUBO_TICK_SIZE_LOG / EKUBO_TICK_SPACING,
+      Math.log(initialPrice) / EKUBO_TICK_SIZE_LOG / EKUBO_TICK_SPACING
     ) * EKUBO_TICK_SPACING
   );
 }

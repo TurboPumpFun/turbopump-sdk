@@ -1,2 +1,7 @@
-export * from "./unruggable/types";
-export * as unruggable from "./unruggable/factory";
+export {
+  collectEkuboFees,
+  createUnruggableToken,
+  launchOnEkubo,
+} from "./unruggable/factory.js";
+
+export type { Config, CreateMemecoinParameters } from "./unruggable/types.js";

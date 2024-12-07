@@ -1,11 +1,4 @@
-import type { LaunchParameters, EkuboLaunchData } from "./types";
-import {
-  type CollectEkuboFeesParameters,
-  type Config,
-  type CreateMemecoinParameters,
-  type DeployData,
-  AMM,
-} from "./types";
+import { Fraction, Percent } from "@uniswap/sdk-core";
 import type { Calldata } from "starknet";
 import {
   type AllowArray,
@@ -16,20 +9,27 @@ import {
   uint256,
 } from "starknet";
 import {
-  convertPercentageStringToPercent,
-  decimalsScale,
-  normalizeAmountString,
-} from "@/utils";
-import {
   DECIMALS,
   EKUBO_FEES_MULTIPLICATOR,
   EKUBO_TICK_SPACING,
   FACTORY_ADDRESSES,
   TOKEN_CLASS_HASH,
-} from "../constants";
-import { TurboPumpError } from "@/errors";
-import { Fraction, Percent } from "@uniswap/sdk-core";
-import { EKUBO_BOUND, getStartingTick } from "./ekubo";
+} from "../constants.js";
+import { TurboPumpError } from "../errors.js";
+import {
+  convertPercentageStringToPercent,
+  decimalsScale,
+  normalizeAmountString,
+} from "../utils.js";
+import { EKUBO_BOUND, getStartingTick } from "./ekubo.js";
+import type { EkuboLaunchData, LaunchParameters } from "./types.js";
+import {
+  AMM,
+  type CollectEkuboFeesParameters,
+  type Config,
+  type CreateMemecoinParameters,
+  type DeployData,
+} from "./types.js";
 
 /**
  * Creates a new meme coin on the Starknet network.
@@ -40,7 +40,7 @@ import { EKUBO_BOUND, getStartingTick } from "./ekubo";
  */
 export async function createUnruggableToken(
   config: Config,
-  parameters: CreateMemecoinParameters,
+  parameters: CreateMemecoinParameters
 ): Promise<{ transactionHash: string; tokenAddress: string }> {
   try {
     const data = {
@@ -62,7 +62,7 @@ export async function createUnruggableToken(
 
 function getEkuboLaunchCalldata(
   config: Config,
-  data: EkuboLaunchData,
+  data: EkuboLaunchData
 ): {
   calls: {
     contractAddress: string;
@@ -114,18 +114,18 @@ function getEkuboLaunchCalldata(
   // Convert all team allocation amounts to Fractions
   const teamAllocationFraction = data.teamAllocations.reduce(
     (acc, { amount }) => acc.add(new Fraction(amount.toString(), 1)),
-    new Fraction(0),
+    new Fraction(0)
   );
 
   // Create fraction for total supply with decimals
   const totalSupplyFraction = new Fraction(data.totalSupply);
   const totalSupplyWithDecimals = totalSupplyFraction.multiply(
-    decimalsScale(DECIMALS),
+    decimalsScale(DECIMALS)
   );
 
   const teamAllocationPercentage = new Percent(
     teamAllocationFraction.quotient,
-    totalSupplyWithDecimals.quotient,
+    totalSupplyWithDecimals.quotient
   );
 
   const teamAllocationQuoteAmount = new Fraction(data.startingMarketCap)
@@ -136,8 +136,8 @@ function getEkuboLaunchCalldata(
     BigInt(
       teamAllocationQuoteAmount
         .multiply(decimalsScale(data.quoteToken.decimals))
-        .quotient.toString(),
-    ),
+        .quotient.toString()
+    )
   );
 
   const initialPrice = +new Fraction(data.startingMarketCap)
@@ -164,9 +164,9 @@ function getEkuboLaunchCalldata(
       BigInt(
         new Fraction(amount.toString())
           .multiply(decimalsScale(DECIMALS))
-          .quotient.toString(),
-      ),
-    ),
+          .quotient.toString()
+      )
+    )
   );
 
   const launchCalldata = CallData.compile([
@@ -200,7 +200,7 @@ function getEkuboLaunchCalldata(
 
 export async function launchOnEkubo(
   config: Config,
-  parameters: LaunchParameters,
+  parameters: LaunchParameters
 ): Promise<{ transactionHash: string }> {
   const { calls } = getEkuboLaunchCalldata(config, {
     amm: AMM.EKUBO,
@@ -219,13 +219,13 @@ export async function launchOnEkubo(
     return { transactionHash: response.transaction_hash };
   } catch (error) {
     console.error("Error launching on Ekubo:", error);
-    throw new TurboPumpError(`Failed to launch on Ekubo`);
+    throw new TurboPumpError("Failed to launch on Ekubo");
   }
 }
 
 function getDeployCalldata(
   config: Config,
-  data: DeployData,
+  data: DeployData
 ): { calls: AllowArray<Call>; tokenAddress: string } {
   const salt = stark.randomAddress();
 
@@ -234,7 +234,7 @@ function getDeployCalldata(
     data.name,
     data.symbol,
     uint256.bnToUint256(
-      BigInt(data.initialSupply) * BigInt(decimalsScale(DECIMALS)),
+      BigInt(data.initialSupply) * BigInt(decimalsScale(DECIMALS))
     ),
     salt,
   ]);
@@ -243,7 +243,7 @@ function getDeployCalldata(
     salt,
     TOKEN_CLASS_HASH[config.starknetChainId],
     constructorCalldata.slice(0, -1),
-    FACTORY_ADDRESSES[config.starknetChainId],
+    FACTORY_ADDRESSES[config.starknetChainId]
   );
 
   const calls: AllowArray<Call> = [
@@ -259,7 +259,7 @@ function getDeployCalldata(
 
 export function collectEkuboFees(
   _config: Config,
-  _parameters: CollectEkuboFeesParameters,
+  _parameters: CollectEkuboFeesParameters
 ): null {
   // TODO
   return null;
