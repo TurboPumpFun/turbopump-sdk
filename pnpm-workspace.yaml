@@ -1,7 +1,6 @@
 packages:
   - packages/*
-  - apps/*
-  - examples/*  
+  - site
 
 catalog:
   "@tanstack/query-core": "5.49.1"
