@@ -12,7 +12,7 @@ const PRIVATE_KEY = process.env.ACCOUNT_PRIVATE_KEY ?? "";
 
 if (!ACCOUNT_ADDRESS || !PRIVATE_KEY) {
   console.error(
-    "Please provide ACCOUNT_ADDRESS and ACCOUNT_PRIVATE_KEY environment variables\n"
+    "Please provide ACCOUNT_ADDRESS and ACCOUNT_PRIVATE_KEY environment variables\n",
   );
   process.exit(1);
 }
@@ -37,7 +37,7 @@ async function main() {
   try {
     const { tokenAddress, transactionHash } = await createUnruggableToken(
       config,
-      parameters
+      parameters,
     );
 
     console.log("Token created successfully!", {
@@ -79,7 +79,7 @@ async function main() {
 
     if (launchResult) {
       console.log(
-        `Launching on Ekubo... Transaction hash: ${launchResult.transactionHash}`
+        `Launching on Ekubo... Transaction hash: ${launchResult.transactionHash}`,
       );
     }
   } catch (error) {

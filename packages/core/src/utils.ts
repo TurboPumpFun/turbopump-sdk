@@ -13,12 +13,12 @@ export function validateStarknetAddress(address: string): boolean {
 }
 
 export function convertPercentageStringToPercent(
-  percentString: string
+  percentString: string,
 ): Percent {
   const precisionMultiplier = 10 ** PERCENTAGE_INPUT_PRECISION;
   return new Percent(
     +percentString * precisionMultiplier,
-    100 * precisionMultiplier
+    100 * precisionMultiplier,
   );
 }
 
