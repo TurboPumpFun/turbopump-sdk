@@ -1,79 +1,53 @@
 {
-    "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-    "files": {
-      "ignore": ["CHANGELOG.md", "pnpm-lock.yaml", "tsconfig.base.json"]
-    },
-    "formatter": {
-      "enabled": true,
-      "formatWithErrors": false,
-      "indentStyle": "space",
-      "indentWidth": 2,
-      "lineWidth": 80
-    },
-    "linter": {
-      "ignore": ["packages/create-wagmi/templates/*"],
-      "enabled": true,
-      "rules": {
-        "recommended": true,
-        "a11y": {
-          "useButtonType": "off"
-        },
-        "correctness": {
-          "noUnusedVariables": "error",
-          "useExhaustiveDependencies": "error"
-        },
-        "performance": {
-          "noBarrelFile": "error",
-          "noReExportAll": "error",
-          "noDelete": "off"
-        },
-        "style": {
-          "noNonNullAssertion": "off",
-          "useShorthandArrayType": "error"
-        },
-        "suspicious": {
-          "noArrayIndexKey": "off",
-          "noConfusingVoidType": "off",
-          "noConsoleLog": "error",
-          "noExplicitAny": "off"
-        }
-      }
-    },
-    "javascript": {
-      "formatter": {
-        "quoteStyle": "single",
-        "trailingCommas": "all",
-        "semicolons": "asNeeded"
-      }
-    },
-    "organizeImports": {
-      "enabled": true
-    },
-    "overrides": [
-      {
-        "include": ["./scripts/**/*.ts"],
-        "linter": {
-          "rules": {
-            "suspicious": {
-              "noConsoleLog": "off"
-            }
-          }
-        }
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "files": {
+    "ignore": ["CHANGELOG.md", "pnpm-lock.yaml", "tsconfig.base.json"]
+  },
+  "formatter": {
+    "indentStyle": "space"
+  },
+  "linter": {
+    "rules": {
+      "recommended": true,
+      "a11y": {
+        "useButtonType": "off"
       },
-      {
-        "include": ["./playgrounds/**"],
-        "linter": {
-          "rules": {
-            "style": {
-              "useNodejsImportProtocol": "off"
-            }
+      "correctness": {
+        "noUnusedVariables": "error",
+        "useExhaustiveDependencies": "error"
+      },
+      "performance": {
+        "noBarrelFile": "error",
+        "noReExportAll": "error",
+        "noDelete": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off",
+        "useShorthandArrayType": "error"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off",
+        "noConfusingVoidType": "off",
+        "noConsoleLog": "error",
+        "noExplicitAny": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "include": ["./examples/**/*.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsoleLog": "off"
           }
         }
       }
-    ],
-    "vcs": {
-      "enabled": true,
-      "clientKind": "git",
-      "useIgnoreFile": true
     }
+  ],
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
   }
+}

@@ -1,5 +1,5 @@
 export class TurboPumpError extends Error {
-  public readonly cause?: unknown;
+  public override readonly cause?: unknown;
 
   constructor(message: string, cause?: unknown) {
     super(message);
