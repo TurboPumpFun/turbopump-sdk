@@ -41,5 +41,8 @@
   },
   "engines": {
     "node": "22.x"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm check"
   }
 }

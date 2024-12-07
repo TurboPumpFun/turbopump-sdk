@@ -3,20 +3,6 @@
   "name": "@turbopump-sdk/core",
   "version": "0.1.0",
   "description": "Official TypeScript SDK for turbopump.fun - create unruggable meme coins and integrate pump features with zero bloat.",
-  "module": "dist/index.mjs",
-  "main": "./dist/esm/exports/index.js",
-  "types": "./dist/types/exports/index.d.ts",
-  "typings": "./dist/types/exports/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/types/exports/index.d.ts",
-      "default": "./dist/esm/exports/index.js"
-    }
-  },
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "scripts": {
     "build": "pnpm run clean && pnpm run build:esm+types",
     "build:esm+types": "tsc --project tsconfig.build.json --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
@@ -38,19 +24,21 @@
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
   },
+  "module": "dist/index.mjs",
+  "main": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "typings": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/esm/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
   "publishConfig": {
     "access": "public"
   },
-  "engines": {
-    "node": ">=16"
-  },
-  "keywords": [
-    "turbopump",
-    "sdk",
-    "meme coins",
-    "crypto",
-    "typescript"
-  ],
+  "keywords": ["turbopump", "sdk", "meme coins", "crypto", "typescript"],
   "author": "TurboPumpFun",
   "license": "MIT",
   "repository": {
