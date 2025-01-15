@@ -63,8 +63,8 @@ module.exports = {
   ignorePatterns: [
     "dist",
     "node_modules",
-    ".eslintrc.js",
+    ".eslintrc.cjs",
     "tsup.config.ts",
     "vitest.config.ts",
   ],
-};
+}; 
