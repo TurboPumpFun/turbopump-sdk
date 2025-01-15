@@ -1,5 +1,6 @@
 import { Percent } from "@uniswap/sdk-core";
-import { PERCENTAGE_INPUT_PRECISION } from "./constants";
+
+import { PERCENTAGE_INPUT_PRECISION } from "./constants.js";
 
 export function decimalsScale(decimals: number): string {
   return `1${Array(decimals).fill("0").join("")}`;

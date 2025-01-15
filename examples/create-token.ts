@@ -1,9 +1,21 @@
 import { Account, constants, RpcProvider } from "starknet";
-import { unruggable, type Config, type CreateMemecoinParameters } from "../src";
+import {
+  Config,
+  CreateMemecoinParameters,
+  createUnruggableToken,
+  launchOnEkubo,
+} from "../packages/core/src";
 
 const STARKNET_RPC = "https://starknet-mainnet.public.blastapi.io";
 const ACCOUNT_ADDRESS = process.env.ACCOUNT_ADDRESS ?? "";
-const PRIVATE_KEY = process.env.PRIVATE_KEY ?? "";
+const PRIVATE_KEY = process.env.ACCOUNT_PRIVATE_KEY ?? "";
+
+if (!ACCOUNT_ADDRESS || !PRIVATE_KEY) {
+  console.error(
+    "Please provide ACCOUNT_ADDRESS and ACCOUNT_PRIVATE_KEY environment variables\n"
+  );
+  process.exit(1);
+}
 
 async function main() {
   const provider = new RpcProvider({ nodeUrl: STARKNET_RPC });
@@ -15,7 +27,7 @@ async function main() {
   };
 
   const parameters: CreateMemecoinParameters = {
-    name: "GG",
+    name: "Turbopump",
     symbol: "GG",
     initialSupply: "1000000",
     owner: ACCOUNT_ADDRESS,
@@ -23,24 +35,28 @@ async function main() {
   };
 
   try {
-    const { tokenAddress, transactionHash } =
-      await unruggable.createUnruggableToken(config, parameters);
-    console.log("Token créé avec succès !");
-    console.log("Transaction Hash:", transactionHash);
-    console.log("Token Address:", tokenAddress);
+    const { tokenAddress, transactionHash } = await createUnruggableToken(
+      config,
+      parameters
+    );
+
+    console.log("Token created successfully!", {
+      tokenAddress,
+      transactionHash,
+    });
 
     await provider.waitForTransaction(transactionHash);
-    const launchResult = await unruggable.launchOnEkubo(config, {
-      tokenAddress:
-        "0x7f1adf9b7f77c84e81e30fbce3b2c3254c377826c2b35efa80fc50a8d156fab",
+
+    const launchResult = await launchOnEkubo(config, {
+      tokenAddress,
       starknetAccount: account,
       antiBotPeriodInSecs: 1440,
       fees: "0.3",
       holdLimit: "1",
-      startingMarketCap: "10000", // usd 
+      startingMarketCap: "10000", // usd
       quoteToken: {
         address:
-          "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", // ETH
+          "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", // ETH
         symbol: "ETH",
         decimals: 18,
         name: "Ether",
@@ -54,16 +70,16 @@ async function main() {
       teamAllocations: [
         {
           address:
-            "0x7a096ecaa08a3a50dc2e1283c38586c497e0e684648ab2abe02427e2afe1e77",
-          amount: "100",
+            "0x7fec6349248dc1a35f3f9fafd19e1ef873b687e04b7b9db4806f9e54f9ef000",
+          amount: "5000",
         },
       ],
-      totalSupply: "100000000000000000000000000",
+      totalSupply: "1000000000000000000000000",
     });
 
     if (launchResult) {
       console.log(
-        `Launching on Ekubo... Transaction hash: ${launchResult.transactionHash}`,
+        `Launching on Ekubo... Transaction hash: ${launchResult.transactionHash}`
       );
     }
   } catch (error) {
