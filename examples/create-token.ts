@@ -12,7 +12,7 @@ const PRIVATE_KEY = process.env.ACCOUNT_PRIVATE_KEY ?? "";
 
 if (!ACCOUNT_ADDRESS || !PRIVATE_KEY) {
   console.error(
-    "Please provide ACCOUNT_ADDRESS and ACCOUNT_PRIVATE_KEY environment variables\n",
+    "Please provide ACCOUNT_ADDRESS and ACCOUNT_PRIVATE_KEY environment variables\n"
   );
   process.exit(1);
 }
@@ -37,7 +37,7 @@ async function main() {
   try {
     const { tokenAddress, transactionHash } = await createUnruggableToken(
       config,
-      parameters,
+      parameters
     );
 
     console.log("Token created successfully!", {
@@ -56,7 +56,7 @@ async function main() {
       startingMarketCap: "10000", // usd
       quoteToken: {
         address:
-          "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", // ETH
+          "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", // ETH
         symbol: "ETH",
         decimals: 18,
         name: "Ether",
@@ -70,16 +70,16 @@ async function main() {
       teamAllocations: [
         {
           address:
-            "0x7a096ecaa08a3a50dc2e1283c38586c497e0e684648ab2abe02427e2afe1e77",
-          amount: "100",
+            "0x7fec6349248dc1a35f3f9fafd19e1ef873b687e04b7b9db4806f9e54f9ef000",
+          amount: "5000",
         },
       ],
-      totalSupply: "100000000000000000000000000",
+      totalSupply: "1000000000000000000000000",
     });
 
     if (launchResult) {
       console.log(
-        `Launching on Ekubo... Transaction hash: ${launchResult.transactionHash}`,
+        `Launching on Ekubo... Transaction hash: ${launchResult.transactionHash}`
       );
     }
   } catch (error) {

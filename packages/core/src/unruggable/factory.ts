@@ -122,13 +122,18 @@ async function getEkuboLaunchCalldata(
       .multiply(EKUBO_FEES_MULTIPLICATOR)
       .quotient.toString();
 
+    const initialHolders = data.teamAllocations.map(({ address }) => address);
+    const initialHoldersAmounts = data.teamAllocations.map(({ amount }) =>
+      uint256.bnToUint256(BigInt(amount) * BigInt(decimalsScale(DECIMALS)))
+    );
+
     const launchCalldata = CallData.compile([
       data.tokenAddress,
       data.antiBotPeriod,
       +data.holdLimit.toFixed(1) * 100,
       data.quoteToken.address,
-      [], // empty initial holders
-      [], // empty initial holders amounts
+      initialHolders,
+      initialHoldersAmounts,
       fees,
       EKUBO_TICK_SPACING,
       i129StartingTick,
@@ -157,15 +162,9 @@ async function getEkuboLaunchCalldata(
     new Fraction(0)
   );
 
-  // Create fraction for total supply with decimals
-  const totalSupplyFraction = new Fraction(data.totalSupply);
-  const totalSupplyWithDecimals = totalSupplyFraction.multiply(
-    decimalsScale(DECIMALS)
-  );
-
   const teamAllocationPercentage = new Percent(
     teamAllocationFraction.quotient,
-    totalSupplyWithDecimals.quotient
+    new Fraction(data.totalSupply, decimalsScale(DECIMALS)).quotient
   );
 
   const teamAllocationQuoteAmount = new Fraction(data.startingMarketCap)
@@ -202,14 +201,9 @@ async function getEkuboLaunchCalldata(
   ]);
 
   const initialHolders = data.teamAllocations.map(({ address }) => address);
+
   const initialHoldersAmounts = data.teamAllocations.map(({ amount }) =>
-    uint256.bnToUint256(
-      BigInt(
-        new Fraction(amount.toString())
-          .multiply(decimalsScale(DECIMALS))
-          .quotient.toString()
-      )
-    )
+    uint256.bnToUint256(BigInt(amount) * BigInt(decimalsScale(DECIMALS)))
   );
 
   const launchCalldata = CallData.compile([
